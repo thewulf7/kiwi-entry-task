@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import moment from 'moment';
+import _ from 'lodash';
 import { Paper, AutoComplete, RaisedButton, DatePicker, CircularProgress, Dialog, FlatButton } from 'material-ui';
-import { searchFlights, dateChanged, fromChanged, toChanged, dismissError } from '../actions';
+import { searchFlights, dateChanged, fromChanged, toChanged, dismissError, searchLocation } from '../actions';
 
 class SearchForm extends Component {
     constructor() {
@@ -21,10 +22,14 @@ class SearchForm extends Component {
 
     onFromChanged(text, dataSource, params) {
         this.props.fromChanged(text);
+        const suggest = _.debounce(value => this.props.searchLocation(value, 'fromSuggestions'), 500);
+        suggest(text);
     }
 
     onToChanged(text, dataSource, params) {
         this.props.toChanged(text);
+        const suggest = _.debounce(value => this.props.searchLocation(value, 'toSuggestions'), 500);
+        suggest(text);
     }
 
     onDateChanged(nullObject, date) {
@@ -32,24 +37,40 @@ class SearchForm extends Component {
     }
 
     render() {
-        const { toValue, fromValue, dateValue, errorFrom, errorTo, errorDate, loading, flightsListError, dismissError } = this.props;
+        const {
+            toValue,
+            fromValue,
+            dateValue,
+            errorFrom,
+            errorTo,
+            errorDate,
+            loading,
+            flightsListError,
+            dismissError,
+            fromSuggestions,
+            toSuggestions
+        } = this.props;
         const { containerStyle, inputStyle, buttonContainerStyle } = styles;
 
         return (
             <Paper style={containerStyle}>
                 <div>
                     <AutoComplete
-                        dataSource={['1']}
+                        dataSource={fromSuggestions}
                         floatingLabelText="From"
+                        filter={(searchText, key) => searchText !== ''}
+                        maxSearchResults={5}
                         style={inputStyle}
                         onUpdateInput={this.onFromChanged}
                         errorText={errorFrom}
                         searchText={fromValue}
                     />
                     <AutoComplete
-                        dataSource={['1']}
+                        dataSource={toSuggestions}
+                        filter={(searchText, key) => searchText !== ''}
                         floatingLabelText="To"
                         style={inputStyle}
+                        maxSearchResults={5}
                         onUpdateInput={this.onToChanged}
                         searchText={toValue}
                         errorText={errorTo}
@@ -107,15 +128,17 @@ const styles = {
 
 const mapStateToProps = (state) => {
     const {
-              toValue,
-              fromValue,
-              dateValue,
-              errorFrom,
-              errorTo,
-              errorDate,
-              loading,
-              flightsListError
-          } = state.search;
+        toValue,
+        fromValue,
+        dateValue,
+        errorFrom,
+        errorTo,
+        errorDate,
+        loading,
+        flightsListError,
+        fromSuggestions,
+        toSuggestions
+    } = state.search;
 
     return {
         loading,
@@ -125,7 +148,9 @@ const mapStateToProps = (state) => {
         errorFrom,
         errorTo,
         errorDate,
-        flightsListError
+        flightsListError,
+        fromSuggestions: fromSuggestions.map(item => item.name),
+        toSuggestions: toSuggestions.map(item => item.name)
     };
 };
 
@@ -134,5 +159,6 @@ export default connect(mapStateToProps, {
     dateChanged,
     fromChanged,
     toChanged,
-    dismissError
+    dismissError,
+    searchLocation
 })(SearchForm);

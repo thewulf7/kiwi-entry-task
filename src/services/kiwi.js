@@ -95,6 +95,8 @@ export const getKiwiLocations = (value) => {
                         edges {
                             node {
                                 name
+                                locationId
+                                type
                             }
                         }
                     }
