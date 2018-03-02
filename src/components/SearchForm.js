@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Paper, AutoComplete, RaisedButton, DatePicker } from 'material-ui';
-import { search, dateChanged, fromChanged, toChanged } from '../actions';
+import moment from 'moment';
+import { Paper, AutoComplete, RaisedButton, DatePicker, CircularProgress, Dialog, FlatButton } from 'material-ui';
+import { searchFlights, dateChanged, fromChanged, toChanged, dismissError } from '../actions';
 
 class SearchForm extends Component {
     constructor() {
@@ -14,7 +15,8 @@ class SearchForm extends Component {
     }
 
     onButtonClick() {
-        console.info('search button clicked');
+        const { fromValue, toValue, dateValue } = this.props;
+        this.props.searchFlights(fromValue, toValue, dateValue.format('YYYY-MM-DD'));
     }
 
     onFromChanged(text, dataSource, params) {
@@ -26,11 +28,11 @@ class SearchForm extends Component {
     }
 
     onDateChanged(nullObject, date) {
-        this.props.dateChanged(date);
+        this.props.dateChanged(moment(date));
     }
 
     render() {
-        const { toValue, fromValue, dateValue, errorFrom, errorTo, errorDate } = this.props;
+        const { toValue, fromValue, dateValue, errorFrom, errorTo, errorDate, loading, flightsListError, dismissError } = this.props;
         const { containerStyle, inputStyle, buttonContainerStyle } = styles;
 
         return (
@@ -53,20 +55,36 @@ class SearchForm extends Component {
                         errorText={errorTo}
                     />
                     <DatePicker
+                        autoOk
+                        minDate={new Date()}
+                        mode="landscape"
+                        formatDate={date => moment(date).format('LL')}
                         style={inputStyle}
                         floatingLabelText="Date"
                         onChange={this.onDateChanged}
-                        value={dateValue}
+                        value={dateValue.toDate()}
                         errorText={errorDate}
                     />
                 </div>
                 <div style={buttonContainerStyle}>
-                    <RaisedButton
+                    {!loading && <RaisedButton
                         primary
                         label="Search"
                         onClick={this.onButtonClick}
-                    />
+                    />}
+                    {loading && <CircularProgress />}
                 </div>
+                <Dialog
+                    open={flightsListError !== null}
+                    title="Error"
+                    actions={<FlatButton
+                        label="Ok"
+                        primary
+                        onClick={() => {
+                            dismissError();
+                        }}
+                    />}
+                >{flightsListError}</Dialog>
             </Paper>
         );
     }
@@ -88,21 +106,33 @@ const styles = {
 };
 
 const mapStateToProps = (state) => {
-    const { toValue, fromValue, dateValue, errorFrom, errorTo, errorDate } = state.search;
+    const {
+              toValue,
+              fromValue,
+              dateValue,
+              errorFrom,
+              errorTo,
+              errorDate,
+              loading,
+              flightsListError
+          } = state.search;
 
     return {
+        loading,
         toValue,
         fromValue,
         dateValue,
         errorFrom,
         errorTo,
-        errorDate
+        errorDate,
+        flightsListError
     };
 };
 
 export default connect(mapStateToProps, {
-    search,
+    searchFlights,
     dateChanged,
     fromChanged,
-    toChanged
+    toChanged,
+    dismissError
 })(SearchForm);

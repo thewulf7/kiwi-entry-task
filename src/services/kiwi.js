@@ -20,26 +20,51 @@ export const getKiwiFlights = (from, to, date) => {
                             node {
                                 id
                                 departure {
+                                    airport {
+                                        locationId
+                                        city {
+                                            locationId
+                                            name
+                                        }
+                                    }
                                     time
                                     localTime
                                 }
                                 arrival {
+                                    airport {
+                                        locationId
+                                        city {
+                                            locationId
+                                            name
+                                        }
+                                    }
                                     time
                                     localTime
                                 }
                                 legs {
                                     flightNumber
+                                    duration
+                                    airline {
+                                        name
+                                        logoUrl
+                                    }
                                     departure {
+                                        time
+                                        localTime
                                         airport {
                                             name
+                                            locationId
                                             city {
                                                 name
                                             }
                                         }
                                     }
                                     arrival {
+                                        time
+                                        localTime
                                         airport {
                                             name
+                                            locationId
                                             city {
                                                 name
                                             }
@@ -47,9 +72,6 @@ export const getKiwiFlights = (from, to, date) => {
                                     }
                                 }
                                 duration
-                                airlines {
-                                    name
-                                }
                                 bookingUrl
                                 price {
                                     amount

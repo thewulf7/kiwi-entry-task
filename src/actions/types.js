@@ -5,3 +5,5 @@ export const DATE_CHANGED = 'date_value_changed';
 export const SEARCH_ACTION = 'search_action';
 export const SEARCH_ACTION_SUCCESS = 'search_action_success';
 export const SEARCH_ACTION_FAIL = 'search_action_fail';
+
+export const DISMISS_ERROR = 'dismiss_error';
