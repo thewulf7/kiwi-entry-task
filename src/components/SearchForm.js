@@ -31,7 +31,7 @@ class SearchForm extends Component {
     }
 
     onUpdateAutocomplete(type) {
-        return _.debounce(value => this.props.searchLocation(value, type), 300);
+        return _.debounce(value => this.props.searchLocation(value, type), 400);
     }
 
     onDateChanged(nullObject, date) {

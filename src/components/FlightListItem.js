@@ -1,10 +1,18 @@
 import React, { Component } from 'react';
 import moment from 'moment';
-import { Paper, List, ListItem, Card, RaisedButton, Divider, CardMedia, CardTitle } from 'material-ui';
+import {
+    List,
+    ListItem,
+    Card,
+    RaisedButton,
+    Divider,
+    CardMedia,
+    CardTitle,
+} from 'material-ui';
 
-class TicketsList extends Component {
-
-    getCityImage(flight) {
+class FlightListItem extends Component {
+    getCityImage() {
+        const { flight } = this.props;
         const img = `https://images.kiwi.com/photos/600x330/${flight.arrival.airport.city.locationId}.jpg`;
         const { imageOverlayContentStyle } = styles;
 
@@ -13,44 +21,22 @@ class TicketsList extends Component {
                 overlayContentStyle={imageOverlayContentStyle}
                 overlay={<h1 style={{ color: 'white', margin: 0 }}>{flight.arrival.airport.locationId}</h1>}
             >
-                <img src={img} alt="" style={{ width: '64px' }}/>
+                <img src={img} alt="" style={{ width: '64px' }} />
             </CardMedia>
         );
     }
 
-    renderListItems(flight) {
-        const { ticketContainerStyle, ticketLeftBlockStyle, ticketRightBlockStyle } = styles;
-        return (
-            <ListItem key={flight.id} disabled>
-                <Card style={ticketContainerStyle}>
-                    <CardTitle
-                        title={`${flight.departure.airport.locationId} - ${flight.arrival.airport.locationId}`}
-                        subtitle={`${flight.departure.airport.city.name} - ${flight.arrival.airport.city.name}`}
-                    />
-                    <div style={{ display: 'flex' }}>
-                        <div style={ticketLeftBlockStyle}>
-                            {this.getCityImage(flight)}
-                            <br/>
-                            <RaisedButton
-                                primary
-                                href={flight.bookingUrl}
-                                label={`Buy at ${flight.price.amount} ${flight.price.currency}`}
-                                labelStyle={{ fontSize: 16 }}
-                            />
-                        </div>
-                        <div style={ticketRightBlockStyle}>
-                            <List style={{ width: '100%' }}>
-                                {this.renderFlightLegs(flight)}
-                            </List>
-                        </div>
-                    </div>
-                </Card>
-            </ListItem>
-        );
-    }
 
-    renderFlightLegs(flight) {
-        const { ticketLegStyle, ticketLegBlockStyle, ticketLegCentralBlockStyle, ticketLegAirlineLogoStyle, ticketLegAirlineBlockLogoStyle } = styles;
+    renderFlightLegs() {
+        const { flight } = this.props;
+        const {
+                  ticketLegStyle,
+                  ticketLegBlockStyle,
+                  ticketLegCentralBlockStyle,
+                  ticketLegAirlineLogoStyle,
+                  ticketLegAirlineBlockLogoStyle
+              } = styles;
+
         return flight.legs.map(
             (leg, i) => {
                 return (
@@ -74,12 +60,13 @@ class TicketsList extends Component {
                                             <i className="material-icons">&#xE905;</i>
                                             <i className="material-icons" style={{ float: 'right' }}>&#xE904;</i>
                                         </div>
-                                        <Divider style={{ height: 3 }}/>
+                                        <Divider style={{ height: 3 }} />
                                         <div style={{ textAlign: 'center' }}>
                                             <span style={{
                                                 fontSize: 12,
                                                 color: '#aaa'
-                                            }}>{`${Math.floor(leg.duration / 60)}h ${leg.duration % 60}m`}</span>
+                                            }}
+                                            >{`${Math.floor(leg.duration / 60)}h ${leg.duration % 60}m`}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -89,7 +76,7 @@ class TicketsList extends Component {
                                 </div>
                             </div>
                         </ListItem>
-                        {i !== flight.legs.length - 1 && <Divider/>}
+                        {i !== flight.legs.length - 1 && <Divider />}
                     </div>
                 );
             }
@@ -97,23 +84,41 @@ class TicketsList extends Component {
     }
 
     render() {
-        const { containerStyle } = styles;
-
+        const { flight } = this.props;
+        const { ticketContainerStyle, ticketLeftBlockStyle, ticketRightBlockStyle } = styles;
         return (
-            <List style={containerStyle}>
-                {this.props.flightsList.map(
-                    (flight, i) => this.renderListItems(flight.node)
-                )}
-            </List>
+            <ListItem disabled>
+                <Card style={ticketContainerStyle}>
+                    <CardTitle
+                        title={`${flight.departure.airport.locationId} - ${flight.arrival.airport.locationId}`}
+                        subtitle={`${flight.departure.airport.city.name} - ${flight.arrival.airport.city.name}`}
+                    />
+                    <div style={{ display: 'flex' }}>
+                        <div style={ticketLeftBlockStyle}>
+                            {this.getCityImage()}
+                            <br />
+                            <RaisedButton
+                                primary
+                                target="_blank"
+                                href={flight.bookingUrl}
+                                label={`Buy at ${flight.price.amount} ${flight.price.currency}`}
+                                labelStyle={{ fontSize: 16 }}
+                            />
+                        </div>
+                        <div style={ticketRightBlockStyle}>
+                            <List style={{ width: '100%' }}>
+                                {this.renderFlightLegs()}
+                            </List>
+                        </div>
+                    </div>
+                </Card>
+            </ListItem>
         );
     }
 }
 
+
 const styles = {
-    containerStyle: {
-        marginTop: 10,
-        marginBottom: 10
-    },
     ticketContainerStyle: {
         //
     },
@@ -124,10 +129,9 @@ const styles = {
         padding: '15px'
     },
     ticketRightBlockStyle: {
-        paddingLeft: 15,
         display: 'flex',
         flexGrow: 1,
-        minWidth: '25%'
+        minWidth: '75%',
     },
     ticketLegStyle: {
         display: 'flex',
@@ -159,7 +163,7 @@ const styles = {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'
-    }
+    },
 };
 
-export default TicketsList;
+export default FlightListItem;

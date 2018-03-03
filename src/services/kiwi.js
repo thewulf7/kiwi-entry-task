@@ -10,18 +10,29 @@ const client = new ApolloClient(
     }
 );
 
-export const getKiwiFlights = (locationFrom, locationTo, date, currency = 'CZK', locale = 'en_US') => {
+export const getKiwiFlights = (locationFrom, locationTo, date, before = '', after = '', currency = 'CZK', locale = 'en_US') => {
     return client.query(
         {
             query: gql`
-                query Flights($locationFrom: String!, $locationTo: String!, $date: Date!, $currency: String!, $locale: String! ) {
+                query Flights(
+                    $locationFrom: String,
+                    $locationTo: String,
+                    $date: Date,
+                    $currency: Currency,
+                    $locale: Locale,
+                    $after: String,
+                    $before: String
+                ) {
                     allFlights(
-                        search: { 
+                        search: {
                             from: {location: $locationFrom},
                             to: {location: $locationTo},
                             date: {exact: $date}
                         },
-                        options: { currency: $currency, locale: $locale }
+                        options: { currency: $currency, locale: $locale },
+                        first: 5,
+                        after: $after,
+                        before: $before,
                     ) {
                         edges {
                             node {
@@ -100,7 +111,9 @@ export const getKiwiFlights = (locationFrom, locationTo, date, currency = 'CZK',
                 locationTo,
                 date,
                 currency,
-                locale
+                locale,
+                before,
+                after
             }
         }
     );

@@ -5,7 +5,6 @@ import {
 
 const INITIAL_STATE = {
     initialState: true,
-    flightsList: []
 };
 
 export default (state = INITIAL_STATE, action) => {
@@ -13,7 +12,7 @@ export default (state = INITIAL_STATE, action) => {
         case SEARCH_ACTION_FAIL:
             return { ...state, initialState: true };
         case SEARCH_ACTION_SUCCESS:
-            return { ...state, initialState: false, flightsList: action.payload.edges };
+            return { ...state, initialState: false };
         default:
             return state;
     }
