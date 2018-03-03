@@ -2,10 +2,15 @@ import {
     FROM_CHANGED,
     TO_CHANGED,
     DATE_CHANGED,
+    DISMISS_ERROR,
     SEARCH_ACTION,
     SEARCH_ACTION_FAIL,
-    SEARCH_ACTION_SUCCESS
+    SEARCH_ACTION_SUCCESS,
+    SEARCH_LOCATION_ACTION,
+    SEARCH_LOCATION_ACTION_SUCCESS,
+    SEARCH_LOCATION_ACTION_FAIL
 } from './types';
+import { getKiwiFlights, getKiwiLocations } from '../services';
 
 export const fromChanged = (text) => {
     return {
@@ -28,6 +33,36 @@ export const dateChanged = (dateObj) => {
     };
 };
 
-export const search = () => {
-
+export const searchFlights = (from, to, date) => async (dispatch) => {
+    dispatch({ type: SEARCH_ACTION });
+    try {
+        const response = await getKiwiFlights(from, to, date);
+        dispatch({ type: SEARCH_ACTION_SUCCESS, payload: response.data.allFlights });
+    } catch (e) {
+        dispatch({ type: SEARCH_ACTION_FAIL, payload: e.message });
+    }
 };
+
+export const searchLocation = (text, prop) => async (dispatch) => {
+    dispatch({ type: SEARCH_LOCATION_ACTION });
+    try {
+        const response = await getKiwiLocations(text);
+        dispatch(
+            {
+                type: SEARCH_LOCATION_ACTION_SUCCESS,
+                payload: {
+                    prop,
+                    value: response.data.allLocations.edges.map(item => item.node)
+                }
+            }
+        );
+    } catch (e) {
+        dispatch({ type: SEARCH_LOCATION_ACTION_FAIL, payload: e.message });
+    }
+};
+
+export const dismissError = () => {
+    return {
+        type: DISMISS_ERROR
+    };
+}

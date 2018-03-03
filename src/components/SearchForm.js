@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Paper, AutoComplete, RaisedButton, DatePicker } from 'material-ui';
-import { search, dateChanged, fromChanged, toChanged } from '../actions';
+import moment from 'moment';
+import _ from 'lodash';
+import { Paper, AutoComplete, RaisedButton, DatePicker, CircularProgress, Dialog, FlatButton } from 'material-ui';
+import { searchFlights, dateChanged, fromChanged, toChanged, dismissError, searchLocation } from '../actions';
 
 class SearchForm extends Component {
     constructor() {
@@ -14,59 +16,96 @@ class SearchForm extends Component {
     }
 
     onButtonClick() {
-        console.info('search button clicked');
+        const { fromValue, toValue, dateValue } = this.props;
+        this.props.searchFlights(fromValue, toValue, dateValue.format('YYYY-MM-DD'));
     }
 
     onFromChanged(text, dataSource, params) {
         this.props.fromChanged(text);
+        const suggest = _.debounce(value => this.props.searchLocation(value, 'fromSuggestions'), 500);
+        suggest(text);
     }
 
     onToChanged(text, dataSource, params) {
         this.props.toChanged(text);
+        const suggest = _.debounce(value => this.props.searchLocation(value, 'toSuggestions'), 500);
+        suggest(text);
     }
 
     onDateChanged(nullObject, date) {
-        this.props.dateChanged(date);
+        this.props.dateChanged(moment(date));
     }
 
     render() {
-        const { toValue, fromValue, dateValue, errorFrom, errorTo, errorDate } = this.props;
+        const {
+            toValue,
+            fromValue,
+            dateValue,
+            errorFrom,
+            errorTo,
+            errorDate,
+            loading,
+            flightsListError,
+            dismissError,
+            fromSuggestions,
+            toSuggestions
+        } = this.props;
         const { containerStyle, inputStyle, buttonContainerStyle } = styles;
 
         return (
             <Paper style={containerStyle}>
                 <div>
                     <AutoComplete
-                        dataSource={['1']}
+                        dataSource={fromSuggestions}
                         floatingLabelText="From"
+                        filter={(searchText, key) => searchText !== ''}
+                        maxSearchResults={5}
                         style={inputStyle}
                         onUpdateInput={this.onFromChanged}
                         errorText={errorFrom}
                         searchText={fromValue}
                     />
                     <AutoComplete
-                        dataSource={['1']}
+                        dataSource={toSuggestions}
+                        filter={(searchText, key) => searchText !== ''}
                         floatingLabelText="To"
                         style={inputStyle}
+                        maxSearchResults={5}
                         onUpdateInput={this.onToChanged}
                         searchText={toValue}
                         errorText={errorTo}
                     />
                     <DatePicker
+                        autoOk
+                        minDate={new Date()}
+                        mode="landscape"
+                        formatDate={date => moment(date).format('LL')}
                         style={inputStyle}
                         floatingLabelText="Date"
                         onChange={this.onDateChanged}
-                        value={dateValue}
+                        value={dateValue.toDate()}
                         errorText={errorDate}
                     />
                 </div>
                 <div style={buttonContainerStyle}>
-                    <RaisedButton
+                    {!loading && <RaisedButton
                         primary
                         label="Search"
                         onClick={this.onButtonClick}
-                    />
+                    />}
+                    {loading && <CircularProgress />}
                 </div>
+                <Dialog
+                    open={flightsListError !== null}
+                    title="Error"
+                    actions={<FlatButton
+                        label="Ok"
+                        primary
+                        onClick={() => {
+                            dismissError();
+                        }}
+                    />}
+                >{flightsListError}</Dialog>
             </Paper>
         );
     }
@@ -88,21 +127,38 @@ const styles = {
 };
 
 const mapStateToProps = (state) => {
-    const { toValue, fromValue, dateValue, errorFrom, errorTo, errorDate } = state.search;
-
-    return {
+    const {
         toValue,
         fromValue,
         dateValue,
         errorFrom,
         errorTo,
-        errorDate
+        errorDate,
+        loading,
+        flightsListError,
+        fromSuggestions,
+        toSuggestions
+    } = state.search;
+
+    return {
+        loading,
+        toValue,
+        fromValue,
+        dateValue,
+        errorFrom,
+        errorTo,
+        errorDate,
+        flightsListError,
+        fromSuggestions: fromSuggestions.map(item => item.name),
+        toSuggestions: toSuggestions.map(item => item.name)
     };
 };
 
 export default connect(mapStateToProps, {
-    search,
+    searchFlights,
     dateChanged,
     fromChanged,
-    toChanged
+    toChanged,
+    dismissError,
+    searchLocation
 })(SearchForm);
