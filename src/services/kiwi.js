@@ -10,12 +10,19 @@ const client = new ApolloClient(
     }
 );
 
-export const getKiwiFlights = (from, to, date) => {
+export const getKiwiFlights = (locationFrom, locationTo, date, currency = 'CZK', locale = 'en_US') => {
     return client.query(
         {
             query: gql`
-                query Flights {
-                    allFlights(search: {from: {location: "${from}"}, to: {location: "${to}"}, date: {exact: "${date}"}}, options: { currency: CZK, locale: en_US }) {
+                query Flights($locationFrom: String!, $locationTo: String!, $date: Date!, $currency: String!, $locale: String! ) {
+                    allFlights(
+                        search: { 
+                            from: {location: $locationFrom},
+                            to: {location: $locationTo},
+                            date: {exact: $date}
+                        },
+                        options: { currency: $currency, locale: $locale }
+                    ) {
                         edges {
                             node {
                                 id
@@ -79,19 +86,32 @@ export const getKiwiFlights = (from, to, date) => {
                                 }
                             }
                         }
+                        pageInfo {
+                            startCursor
+                            endCursor
+                            hasNextPage
+                            hasPreviousPage
+                        }
                     }
                 }
-            `
+            `,
+            variables: {
+                locationFrom,
+                locationTo,
+                date,
+                currency,
+                locale
+            }
         }
     );
 };
 
-export const getKiwiLocations = (value) => {
+export const getKiwiLocations = (value, limit = 5, locale = 'en_US') => {
     return client.query(
         {
             query: gql`
-                query Locations {
-                    allLocations(search: "${value}", options: { locale: en_US }) {
+                query Locations($value: String, $limit: Int, $locale: Locale) {
+                    allLocations(search: $value, first: $limit, options: { locale: $locale }) {
                         edges {
                             node {
                                 name
@@ -101,7 +121,12 @@ export const getKiwiLocations = (value) => {
                         }
                     }
                 }
-            `
+            `,
+            variables: {
+                value,
+                limit,
+                locale
+            }
         }
     );
 };

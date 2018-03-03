@@ -22,14 +22,16 @@ class SearchForm extends Component {
 
     onFromChanged(text, dataSource, params) {
         this.props.fromChanged(text);
-        const suggest = _.debounce(value => this.props.searchLocation(value, 'fromSuggestions'), 500);
-        suggest(text);
+        this.onUpdateAutocomplete('fromSuggestions')(text);
     }
 
     onToChanged(text, dataSource, params) {
         this.props.toChanged(text);
-        const suggest = _.debounce(value => this.props.searchLocation(value, 'toSuggestions'), 500);
-        suggest(text);
+        this.onUpdateAutocomplete('toSuggestions')(text);
+    }
+
+    onUpdateAutocomplete(type) {
+        return _.debounce(value => this.props.searchLocation(value, type), 300);
     }
 
     onDateChanged(nullObject, date) {
