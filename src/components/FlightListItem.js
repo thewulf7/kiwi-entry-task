@@ -7,7 +7,7 @@ import {
     RaisedButton,
     Divider,
     CardMedia,
-    CardTitle,
+    CardTitle
 } from 'material-ui';
 
 class FlightListItem extends Component {
@@ -30,12 +30,12 @@ class FlightListItem extends Component {
     renderFlightLegs() {
         const { flight } = this.props;
         const {
-                  ticketLegStyle,
-                  ticketLegBlockStyle,
-                  ticketLegCentralBlockStyle,
-                  ticketLegAirlineLogoStyle,
-                  ticketLegAirlineBlockLogoStyle
-              } = styles;
+            ticketLegStyle,
+            ticketLegBlockStyle,
+            ticketLegCentralBlockStyle,
+            ticketLegAirlineLogoStyle,
+            ticketLegAirlineBlockLogoStyle
+        } = styles;
 
         return flight.legs.map(
             (leg, i) => {
