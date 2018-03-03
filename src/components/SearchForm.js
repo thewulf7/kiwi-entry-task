@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import moment from 'moment';
 import _ from 'lodash';
@@ -6,6 +7,38 @@ import { Paper, AutoComplete, RaisedButton, DatePicker, CircularProgress, Dialog
 import { searchFlights, dateChanged, fromChanged, toChanged, dismissError, searchLocation } from '../actions';
 
 class SearchForm extends Component {
+    static defaultProps = {
+        toValue: null,
+        fromValue: null,
+        dateValue: null,
+        flightsList: [],
+        dateChanged: () => {},
+        fromChanged: () => {},
+        toChanged: () => {},
+        dismissError: () => {},
+        onButtonClick: () => {},
+        searchLocation: () => {},
+        searchFlights: () => {},
+        fromSuggestions: [],
+        toSuggestions: []
+    }
+
+    static propTypes = {
+        toValue: PropTypes.string,
+        fromValue: PropTypes.string,
+        dateValue: PropTypes.object,
+        flightsList: PropTypes.arrayOf(PropTypes.object),
+        dateChanged: PropTypes.func,
+        fromChanged: PropTypes.func,
+        toChanged: PropTypes.func,
+        dismissError: PropTypes.func,
+        onButtonClick: PropTypes.func,
+        searchLocation: PropTypes.func,
+        searchFlights: PropTypes.func,
+        fromSuggestions: PropTypes.arrayOf(PropTypes.string),
+        toSuggestions: PropTypes.arrayOf(PropTypes.string),
+    }
+
     constructor() {
         super();
 
@@ -22,14 +55,16 @@ class SearchForm extends Component {
 
     onFromChanged(text, dataSource, params) {
         this.props.fromChanged(text);
-        const suggest = _.debounce(value => this.props.searchLocation(value, 'fromSuggestions'), 500);
-        suggest(text);
+        this.onUpdateAutocomplete('fromSuggestions')(text);
     }
 
     onToChanged(text, dataSource, params) {
         this.props.toChanged(text);
-        const suggest = _.debounce(value => this.props.searchLocation(value, 'toSuggestions'), 500);
-        suggest(text);
+        this.onUpdateAutocomplete('toSuggestions')(text);
+    }
+
+    onUpdateAutocomplete(type) {
+        return _.debounce(value => this.props.searchLocation(value, type), 400);
     }
 
     onDateChanged(nullObject, date) {

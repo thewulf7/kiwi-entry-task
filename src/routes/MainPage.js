@@ -1,19 +1,20 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { colors } from 'material-ui/styles';
 import SearchForm from '../components/SearchForm';
-import TicketsList from '../components/TicketsList';
+import TicketsList from '../components/FlightsList';
 
 class MainPage extends Component {
     render() {
-        const { initialState, flightsList } = this.props;
+        const { initialState } = this.props;
         const { containerStyle, containerResultsStyle } = styles;
 
         return (
             <div style={initialState ? containerStyle : containerResultsStyle}>
                 <div>
-                    <h1 style={{ color: 'white', textAlign: 'center' }}>Quick Kiwi Search {initialState ? '' : 'Results' }</h1>
+                    <h1 style={{ color: colors.deepPurple500, textAlign: 'center' }}>Quick Kiwi Search {initialState ? '' : 'Results' }</h1>
                     <SearchForm />
-                    {!initialState && <TicketsList flightsList={flightsList} />}
+                    {!initialState && <TicketsList />}
                 </div>
             </div>
         );
@@ -36,11 +37,10 @@ const styles = {
 };
 
 const mapStateToProps = (state) => {
-    const { initialState, flightsList } = state.mainPage;
+    const { initialState } = state.mainPage;
 
     return {
-        initialState,
-        flightsList
+        initialState
     };
 };
 
