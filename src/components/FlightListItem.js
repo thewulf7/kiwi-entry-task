@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import moment from 'moment';
 import {
     List,
@@ -11,6 +12,10 @@ import {
 } from 'material-ui';
 
 class FlightListItem extends Component {
+    static propTypes = {
+        flight: PropTypes.object.isRequired
+    }
+
     getCityImage() {
         const { flight } = this.props;
         const img = `https://images.kiwi.com/photos/600x330/${flight.arrival.airport.city.locationId}.jpg`;

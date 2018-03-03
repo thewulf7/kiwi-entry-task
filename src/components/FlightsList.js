@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 import {
     List,
     RaisedButton,
@@ -10,6 +11,24 @@ import { searchFlights } from '../actions';
 import FlightListItem from './FlightListItem';
 
 class FlightsList extends Component {
+    static defaultProps = {
+        toValue: null,
+        fromValue: null,
+        dateValue: null,
+        pageInfo: {},
+        flightsList: [],
+        searchFlights: () => {}
+    }
+
+    static propTypes = {
+        toValue: PropTypes.string,
+        fromValue: PropTypes.string,
+        dateValue: PropTypes.object,
+        pageInfo: PropTypes.object,
+        flightsList: PropTypes.arrayOf(PropTypes.object),
+        searchFlights: PropTypes.func
+    }
+
     constructor() {
         super();
 
@@ -22,7 +41,6 @@ class FlightsList extends Component {
             fromValue,
             dateValue,
             pageInfo,
-            searchFlights,
         } = this.props;
 
         const {
@@ -31,7 +49,7 @@ class FlightsList extends Component {
         } = pageInfo;
 
         if (hasNextPage) {
-            searchFlights(fromValue, toValue, dateValue.format('YYYY-MM-DD'), endCursor);
+            this.props.searchFlights(fromValue, toValue, dateValue.format('YYYY-MM-DD'), endCursor);
         }
     }
 
